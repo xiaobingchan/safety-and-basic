@@ -11,41 +11,14 @@
 
 
 ## 2 相关安全资料
-### 2.1 系统所有文件权限备份，[点击详情](https://mp.weixin.qq.com/s/Old4OOcwWoTmIPoXXpAdIg)
-```shell
-1、找一个系统版本一样的服务器上操作权限备份
+### 2.1 系统所有文件权限备份及还原，[点击详情](https://mp.weixin.qq.com/s/Old4OOcwWoTmIPoXXpAdIg)
+### 2.2 AIDE入侵检测系统 [点击详情](https://github.com/xiaobingchan/safety-and-basic/blob/master/chapter1/AIDE%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E7%B3%BB%E7%BB%9F.md)
+### 2.3 Linux杀毒软件clamav [点击详情](https://github.com/xiaobingchan/safety-and-basic/blob/master/chapter1/Linux%E6%9D%80%E6%AF%92%E8%BD%AF%E4%BB%B6clamav.md)
+### 2.4  Nessus 漏洞扫描工具 [点击详情](https://github.com/xiaobingchan/safety-and-basic/blob/master/chapter1/Nessus%20%E6%BC%8F%E6%B4%9E%E6%89%AB%E6%8F%8F%E5%B7%A5%E5%85%B7.md)
+### 2.5 病毒案例与样本
+- [Linux Redis自动化挖矿感染蠕虫分析及安全建议](https://paper.seebug.org/605/)
+- [Windows与Linux双平台无文件攻击PowerGhost挖矿病毒最新变种感染多省份](https://www.secpulse.com/archives/118077.html)
+- [Linux 应急响应](https://www.secpulse.com/archives/116824.html)
+- [京东蓝军发现Apache Kylin 远程命令执行漏洞报告](https://www.secpulse.com/archives/135424.html)
+- [Linux watchdogs 感染性隐藏挖矿病毒入侵还原录](https://cloud.tencent.com/developer/article/1394670)
 
-# 备份整个系统权限
-$ getfacl -R / > /data/system-all-permissions.facl
-2、恢复整个系统权限，在损坏的机器上操作
-
-# 拷贝备份权限文件
-$ scp root@192.168.1.10:/data/system-all-permissions.facl /data/
-
-# 恢复整个系统权限
-$ setfacl --restore=/data/system-all-permissions.facl
-
-# 权限恢复完，可以找一个业务低峰重启机器
-$ reboot
-```
-
-
-### 2.2 AIDE入侵检测系统
-```shell
-# 步骤一：部署AIDE入侵检测系统
-1）安装： 
-$ yum -y install aide    
-2）修改配置文件：
-$ vim /etc/aide.conf   （确定对哪些数据进行校验，如何校验数据）
-
-步骤二：初始化数据库，入侵后检测
-1）入侵前对数据进行校验，生成初始化数据库：
-$ aide --init
-//生成校验数据库，数据保存在/var/lib/aide/aide.db.new.gz
-2）备份数据库
-$ cp /var/lib/aide/aide.db.new.gz   /自定义目录/
-3）入侵后检测：
-$ cd /var/lib/aide/
-$ mv aide.db.new.gz   aide.db.gz
-$ aide --check    //检查哪些数据发生了变化
-```
