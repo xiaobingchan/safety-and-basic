@@ -21,4 +21,13 @@
 - [Linux 应急响应](https://www.secpulse.com/archives/116824.html)
 - [京东蓝军发现Apache Kylin 远程命令执行漏洞报告](https://www.secpulse.com/archives/135424.html)
 - [Linux watchdogs 感染性隐藏挖矿病毒入侵还原录](https://cloud.tencent.com/developer/article/1394670)
-
+### 2.6 有关安全的学习网站
+- [漏洞与黑客工具](https://www.ddosi.com/)
+- [漏洞相关，云鼎实验室](https://paper.seebug.org/)
+- [REEBUF 等保测评与病毒](https://www.freebuf.com/)
+- [安全脉搏 渗透漏洞相关](https://www.secpulse.com/)
+- [黑白网 渗透相关](https://www.heibai.org/)
+- [devful 加固方案](http://www.defvul.com/)
+- [too1s 攻击资讯相关](https://www.t00ls.net/)
+- [乌云网 安全相关](https://wooyun.js.org/)
+- [漏洞时代](http://0day5.com/)
