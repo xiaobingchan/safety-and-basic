@@ -1,0 +1,19 @@
+filebeat 配置实例：
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+  json.message_key: log
+  json.keys_under_root: true
+  fields:
+    log_topic: nginx-192.168.5.159     # 附加的可选字段,以向output添加额外的信息。output里面可以使用这个变量
+  #multiline.pattern: ^\-{63}   #多行合并 同logstash的multiline用法相似
+  #multiline.negate: true
+  #multiline.match: after
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["192.168.5.30:9200"]
+  index: "nginx-192.168.5.159index-%{+yyyy.MM.dd}"
+setup.template.name: "filebeattest"
+setup.template.pattern: "filebeattest-*"

@@ -11,11 +11,21 @@ $ vim /etc/aide.conf   （确定对哪些数据进行校验，如何校验数据
 步骤二：初始化数据库，入侵后检测
 1）入侵前对数据进行校验，生成初始化数据库：
 $ aide --init
+
+AIDE, version 0.15.1
+
+### AIDE database at /var/lib/aide/aide.db.new.gz initialized.
 //生成校验数据库，数据保存在/var/lib/aide/aide.db.new.gz
-2）备份数据库
-$ cp /var/lib/aide/aide.db.new.gz   /自定义目录/
-3）入侵后检测：
-$ cd /var/lib/aide/
-$ mv aide.db.new.gz   aide.db.gz
+
+$ cp /var/lib/aide/aide.db.new.gz  /var/lib/aide/aide.db.gz  /自定义目录/
 $ aide --check    //检查哪些数据发生了变化
+
+AIDE 0.15.1 found differences between database and filesystem!!
+Start timestamp: 2020-07-26 07:32:46
+
+Summary:
+  Total number of files:	47466
+  Added files:			11
+  Removed files:		0
+  Changed files:		0
 ```

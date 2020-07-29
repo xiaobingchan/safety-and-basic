@@ -1,0 +1,59 @@
+filebeat.inputs:
+#################nginx#############
+- type: log
+  enabled: true 
+  paths:
+    - /var/log/nginx/access.log
+  json.keys_under_root: true
+  json.overwrite_keys: true
+  tags: ["access"] 
+
+- type: log
+  enabled: true 
+  paths:
+    - /var/log/nginx/error.log
+  tags: ["error"]
+
+#################tomcat#############
+- type: log
+  enabled: true 
+  paths:
+    - /var/log/tomcat/localhost_access_log.*.txt
+  json.keys_under_root: true
+  json.overwrite_keys: true
+  tags: ["tomcat"] 
+
+#################es#############
+- type: log
+  enabled: true 
+  paths:
+    - /var/log/elasticsearch/elasticsearch.log
+  tags: ["es"] 
+  multiline.pattern: '^\['
+  multiline.negate: true
+  multiline.match: after 
+#################output#############
+setup.kibana:
+  host: "10.0.0.51:5601"
+
+output.elasticsearch:
+  hosts: ["10.0.0.51:9200"]
+  #index: "nginx-%{[beat.version]}-%{+yyyy.MM}"
+  indices:
+    - index: "nginx-access-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "access"
+    - index: "nginx-error-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "error"
+    - index: "tomcat-access-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "tomcat"
+    - index: "es-java-%{[beat.version]}-%{+yyyy.MM}"
+      when.contains:
+        tags: "es"
+
+setup.template.name: "nginx"
+setup.template.pattern: "nginx-*"
+setup.template.enabled: false
+setup.template.overwrite: true

@@ -1,0 +1,97 @@
+https://www.jianshu.com/p/4e4112237cb5
+
+JIRA 学习：
+下载地址：https://www.atlassian.com/zh/software/jira/update
+版本：atlassian-jira-software-8.2.4-x64.bin
+使用手册：
+
+Confluence 学习：
+下载地址：wget https://www.atlassian.com/software/confluence/downloads/binary/atlassian-confluence-6.13.0-x64.bin 
+版本：atlassian-confluence-6.13.0-x64.bin 
+使用手册：https://www.cwiki.us/display/CONFLUENCEWIKI/Navigate+Spaces
+
+
+1，安装mysql数据库，创建jira、confluence库，创建密码
+
+mysql -u root -p 
+update mysql.user set authentication_string=password('123456') where user='root' and Host = 'localhost';
+flush privileges;
+create database jira default character set utf8 collate utf8_bin;
+create database confluence default character set utf8 collate utf8_bin;
+SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+2，安装jira
+[root@localhost ~]# chmod a+x atlassian-jira-software-8.2.4-x64.bin 
+[root@localhost ~]# ./atlassian-jira-software-8.2.4-x64.bin 
+
+JIRA Software 8.2.4 can be accessed at http://localhost:8080
+
+4，安装confluence
+[root@localhost ~]# chmod a+x atlassian-jira-software-8.2.4-x64.bin 
+[root@localhost ~]# ./atlassian-confluence-6.13.0-x64.bin
+
+Confluence 6.13.0 can be accessed at http://localhost:8090
+
+[root@localhost ~]# 复制 serve id ，停止 /opt/atlassian/confluence/bin/stop-confluence.sh
+mv /opt/atlassian/confluence/confluence/WEB-INF/lib/atlassian-extras-decoder-v2-3.4.1.jar ./
+放到windows破解得到序列号，再把破解后的jar包放回到原有的位置，重启
+/opt/atlassian/confluence/bin/start-confluence.sh
+
+
+BFXV-39GU-9GGE-H7YR
+
+yum -y install wget gcc gcc-c++ ncurses ncurses-devel cmake numactl.x86_64 libaio
+wget http://mirrors.ustc.edu.cn/mysql-ftp/Downloads/MySQL-5.7/mysql-5.7.24-linux-glibc2.12-x86_64.tar.gz
+
+tar -zxvf mysql-5.7.24-linux-glibc2.12-x86_64.tar.gz -C /usr/local/
+mv /usr/local/mysql-5.7.24-linux-glibc2.12-x86_64/ /usr/local/mysql
+cd /usr/local/mysql/
+cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql
+cat >/etc/my.cnf <<EOF
+[client]
+port=3306
+socket=/tmp/mysql.sock
+[mysqld]
+port=3306
+socket=/tmp/mysql.sock
+skip-external-locking
+key_buffer_size = 38M
+max_allowed_packet = 1M
+table_open_cache = 64
+sort_buffer_size = 512K
+net_buffer_length = 8K
+read_buffer_size = 256K
+read_rnd_buffer_size = 512K
+myisam_sort_buffer_size = 8M
+basedir=/usr/local/mysql
+datadir=/var/lib/mysql
+bind-address=0.0.0.0
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
+log-bin=/var/lib/mysql/mysql_logbin
+log-error=/var/log/mariadb
+slow_query_log =1
+slow_query_log_file=/tmp/mysql_slow.log
+server-id=1
+symbolic-links=0
+[mysqld_safe]
+pid-file=/var/run/mariadb/mariadb.pid
+EOF
+
+useradd mysql
+mkdir -p /var/lib/mysql
+chown mysql:mysql /var/lib/mysql
+mkdir -p /var/log/mariadb
+chown mysql:mysql /var/log/mariadb/
+mkdir -p /var/run/mariadb
+chown mysql:mysql /var/run/mariadb/
+touch /var/run/mariadb/mariadb.pid
+cat  >> /etc/profile << EOF
+export PATH=\$PATH:/usr/local/mysql/bin:/usr/local/mysql/lib
+EOF
+source /etc/profile
+chmod -R 777 /var/log
+mysqld --defaults-file=/etc/my.cnf --user=mysql --initialize-insecure
+/etc/init.d/mysql start
+

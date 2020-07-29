@@ -3,7 +3,7 @@
 
  **网络安全等级保护2.0合规** 
 
-阿里公共云网络安全等级保护2.0合规能力白皮书V1.0，[点击下载](https://githubssdsdsdadasd.oss-ap-northeast-1.aliyuncs.com/%E9%98%BF%E9%87%8C%E5%85%AC%E5%85%B1%E4%BA%91%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E7%AD%89%E7%BA%A7%E4%BF%9D%E6%8A%A42.0%E5%90%88%E8%A7%84%E8%83%BD%E5%8A%9B%E7%99%BD%E7%9A%AE%E4%B9%A6V1.0.pdf?Expires=1595682261&OSSAccessKeyId=TMP.3KkSbDHE5jmb2VFvJc8YAkzwyiEoF4ksVUz3vETfdbmjmLiXmM1XczhENEqpiBKo9h4f4dtVB6AGLXyhvsAXuAVr8V1V5E&Signature=Fj%2BiBg1n3ezfNmrZw%2Fkl5bBZIJU%3D)
+阿里公共云网络安全等级保护2.0合规能力白皮书V1.0，[点击下载](https://githubssdsdsdadasd.oss-ap-northeast-1.aliyuncs.com/%E9%98%BF%E9%87%8C%E5%85%AC%E5%85%B1%E4%BA%91%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E7%AD%89%E7%BA%A7%E4%BF%9D%E6%8A%A42.0%E5%90%88%E8%A7%84%E8%83%BD%E5%8A%9B%E7%99%BD%E7%9A%AE%E4%B9%A6V1.0.pdf)
 
 ## 1 等保2.0 简介
 
@@ -31,3 +31,5 @@
 - [too1s 攻击资讯相关](https://www.t00ls.net/)
 - [乌云网 安全相关](https://wooyun.js.org/)
 - [漏洞时代](http://0day5.com/)
+- 关注公众号  LemonSec
+

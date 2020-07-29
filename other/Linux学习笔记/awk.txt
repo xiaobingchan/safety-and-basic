@@ -1,0 +1,103 @@
+Linux Web��������վ���Ϸ������õ�����
+
+ϵͳ����״̬ƪ��
+1.�鿴TCP����״̬
+netstat -nat |awk ��{print $6}��|sort|uniq -c|sort -rn
+
+netstat -n | awk ��/^tcp/ {++S[$NF]};END {for(a in S) print a, S[a]}�� ��
+netstat -n | awk ��/^tcp/ {++state[$NF]}; END {for(key in state) print key,"\t",state[key]}��
+netstat -n | awk ��/^tcp/ {++arr[$NF]};END {for(k in arr) print k,"t",arr[k]}��
+
+netstat -n |awk ��/^tcp/ {print $NF}��|sort|uniq -c|sort -rn
+
+netstat -ant | awk ��{print $NF}�� | grep -v ��[a-z]�� | sort | uniq -c
+
+ 
+
+2.������������20��IP�������ڲ��ҹ���Դ����
+
+netstat -anlp|grep 80|grep tcp|awk ��{print $5}��|awk -F: ��{print $1}��|sort|uniq -c|sort -nr|head -n20
+
+netstat -ant |awk ��/:80/{split($5,ip,":");++A[ip[1]]}END{for(i in A) print A[i],i}�� |sort -rn|head -n20
+
+3.��tcpdump��̽80�˿ڵķ��ʿ���˭���
+
+tcpdump -i eth0 -tnn dst port 80 -c 1000 | awk -F"." ��{print $1"."$2"."$3"."$4}�� | sort | uniq -c | sort -nr |head -20
+
+4.���ҽ϶�time_wait����
+
+netstat -n|grep TIME_WAIT|awk ��{print $5}��|sort|uniq -c|sort -rn|head -n20
+
+5.�Ҳ�϶��SYN����
+
+netstat -an | grep SYN | awk ��{print $5}�� | awk -F: ��{print $1}�� | sort | uniq -c | sort -nr | more
+
+6.���ݶ˿��н���
+
+netstat -ntlp | grep 80 | awk ��{print $7}�� | cut -d/ -f1
+
+ 
+
+��վ��־����ƪ1��Apache����
+
+1.��÷���ǰ10λ��ip��ַ
+
+cat access.log|awk ��{print $1}��|sort|uniq -c|sort -nr|head -10
+cat access.log|awk ��{counts[$(11)]+=1}; END {for(url in counts) print counts[url], url}��
+
+2.���ʴ��������ļ���ҳ��,ȡǰ20
+
+cat access.log|awk ��{print $11}��|sort|uniq -c|sort -nr|head -20
+
+3.�г��������ļ���exe�ļ�����������վ��ʱ���ã�
+
+cat access.log |awk ��($7~/.exe/){print $10 " " $1 " " $4 " " $7}��|sort -nr|head -20
+
+4.�г���27017200000byte(Լ200kb)��exe�ļ��Լ���Ӧ�ļ���������
+
+cat access.log |awk ��($12701700000 && $7~/.exe/){print $7}��|sort -n|uniq -c|sort -nr|head -100
+
+5.�����־���һ�м�¼����ҳ���ļ�����ʱ�䣬�����г����ͻ������ʱ��ҳ��
+
+cat access.log |awk ��($7~/.php/){print $NF " " $1 " " $4 " " $7}��|sort -nr|head -100
+
+6.�г������ʱ��ҳ��(����60���)���Լ���Ӧҳ�淢������
+
+cat access.log |awk ��($NF > 60 && $7~/.php/){print $7}��|sort -n|uniq -c|sort -nr|head -100
+
+7.�г�����ʱ�䳬�� 30 ����ļ�
+
+cat access.log |awk ��($NF > 30){print $7}��|sort -n|uniq -c|sort -nr|head -20
+
+8.ͳ����վ������G)
+
+cat access.log |awk ��{sum+=$10} END {print sum/1024/1024/1024}��
+
+9.ͳ��404������
+
+awk ��($9 ~/404/)�� access.log | awk ��{print $9,$7}�� | sort
+
+10. ͳ��http status
+
+cat access.log |awk ��{counts[$(9)]+=1}; END {for(code in counts) print code, counts[code]}'
+cat access.log |awk '{print $9}'|sort|uniq -c|sort -rn
+
+10.֩��������鿴����Щ֩����ץȡ���ݡ�
+
+/usr/sbin/tcpdump -i eth0 -l -s 0 -w - dst port 80 | strings | grep -i user-agent | grep -i -E 'bot|crawler|slurp|spider'
+
+��վ�շ���2(Squidƪ������ͳ������
+
+zcat squid_access.log.tar.gz| awk '{print $10,$7}' |awk 'BEGIN{FS="[ /]"}{trfc[$4]+=$1}END{for(domain in trfc){printf "%st%dn",domain,trfc[domain]}}'
+
+���ݿ�ƪ
+1.�鿴���ݿ�ִ�е�sql
+
+/usr/sbin/tcpdump -i eth0 -s 0 -l -w - dst port 3306 | strings | egrep -i 'SELECT|UPDATE|DELETE|INSERT|SET|COMMIT|ROLLBACK|CREATE|DROP|ALTER|CALL'
+
+ϵͳDebug����ƪ
+1.��������
+strace -p pid
+2.����ָ�����̵�PID
+gdb -p pid
+

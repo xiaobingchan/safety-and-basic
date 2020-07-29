@@ -1,0 +1,49 @@
+cat > nginx-rc.yaml <<EOF
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx-controller
+spec:
+  replicas: 1
+  selector:
+    name: nginx
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 80
+EOF
+
+cat > nginx-service.yaml <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-nodeport
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: NodePort
+  selector:
+    name: nginx
+EOF
+
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+kubectl create -f nginx-rc.yaml
+kubectl create -f nginx-service.yaml
+
+kubectl get pod
+kubectl get svc
+kubectl describe svc nginx-service-nodeport
+
+
+
+curl http://127.0.0.1:30394

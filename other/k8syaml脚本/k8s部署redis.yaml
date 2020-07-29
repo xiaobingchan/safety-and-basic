@@ -1,0 +1,121 @@
+cat > redis.conf <<EOF
+appendonly yes
+cluster-enabled yes
+cluster-config-file /var/lib/redis/nodes.conf
+cluster-node-timeout 5000
+dir /var/lib/redis
+port 6379
+EOF
+
+kubectl create configmap redis-conf --from-file=redis.conf
+
+cat > redis-HeadlessService.yaml <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  labels:
+    app: redis
+spec:
+  ports:
+  - name: redis-port
+    port: 6379
+  clusterIP: None
+  selector:
+    app: redis
+    appCluster: redis-cluster
+EOF
+kubectl create -f redis-HeadlessService.yaml
+
+cat > redis-StatefulSet.yaml <<EOF
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis-app
+spec:
+  serviceName: "redis-service"
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        app: redis
+        appCluster: redis-cluster
+    spec:
+      terminationGracePeriodSeconds: 20
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - redis
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: redis
+        image: "registry.cn-qingdao.aliyuncs.com/gold-faas/gold-redis:1.0"
+        command:
+          - "redis-server"
+        args:
+          - "/etc/redis/redis.conf"
+          - "--protected-mode"
+          - "no"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "100Mi"
+        ports:
+            - name: redis
+              containerPort: 6379
+              protocol: "TCP"
+            - name: cluster
+              containerPort: 16379
+              protocol: "TCP"
+        volumeMounts:
+          - name: "redis-conf"
+            mountPath: "/etc/redis"
+          - name: "redis-data"
+            mountPath: "/var/lib/redis"
+      volumes:
+      - name: "redis-conf"
+        configMap:
+          name: "redis-conf"
+          items:
+            - key: "redis.conf"
+              path: "redis.conf"
+      - name: "redis-data"
+        emptyDir: {} 
+EOF
+kubectl create -f redis-StatefulSet.yaml 
+
+kubectl run -i --tty redis-cluster-manager --image=ubuntu --restart=Never /bin/bash
+
+wget http://download.redis.io/releases/redis-5.0.3.tar.gz
+tar -xvzf redis-5.0.3.tar.gz
+cd redis-5.0.3/ && make
+make hiredis jemalloc linenoise lua
+cd ../ 
+make MALLOC=libc
+
+yum install python-pip
+pip install redis-trib
+
+# 对应关系：
+master : 10.100.16.135:6379  10.100.16.137:6379  10.100.16.138:6379 
+node :   10.100.16.139:6379  10.100.16.140:6379  10.100.16.141:6379
+
+redis-trib.py create 10.100.16.135:6379  10.100.16.137:6379  10.100.16.138:6379 
+
+redis-trib.py replicate --master-addr 10.100.16.135:6379 --slave-addr 10.100.16.139:6379
+redis-trib.py replicate --master-addr 10.100.16.137:6379 --slave-addr 10.100.16.140:6379
+redis-trib.py replicate --master-addr 10.100.16.138:6379 --slave-addr 10.100.16.141:6379
+
+./redis-cli -h 10.100.16.135 -c
+cluster info
+set bb "aaaa"
+
+./redis-cli -h 10.100.16.141 -c
+get bb

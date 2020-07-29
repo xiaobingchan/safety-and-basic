@@ -1,0 +1,128 @@
+# 安装 nfs
+yum -y install nfs-utils rpcbind 
+mkdir -p /usr/local/k8s/mysql/pv1 
+chmod 777 /usr/local/k8s/mysql/pv1 
+cat >> /etc/exports <<EOF
+/usr/local/k8s/mysql/pv1 *(rw,all_squash)
+EOF
+systemctl start rpcbind
+systemctl start nfs
+mount -t nfs 192.168.225.180:/usr/local/k8s/mysql/pv1 /mnt
+
+# 创建默认存储
+cat > sc-default.yaml <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: nfs
+provisioner: example.com/nfs
+EOF
+kubectl create -f sc-default.yaml
+
+# 创建pv
+cat > mysql-pv.yaml <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mypv1
+spec:
+  capacity:  #指定容量
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce  #访问模式，还有ReadOnlyMany ##ReadOnlymany
+  nfs:
+    path: /usr/local/k8s/mysql/pv1   #指明nfs的路径
+    server: 192.168.225.180  #指明nfs的ip
+EOF
+kubectl create -f mysql-pv.yaml
+
+cat > mysql-pvc.yaml <<EOF
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: my-mysql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+EOF
+kubectl create -f mysql-pvc.yaml
+
+cat > mysql-secret.yaml <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-mysql
+data:
+  mysql-root-password: "cm9vdA=="
+  mysql-password: "cm9vdA=="
+EOF
+kubectl create -f mysql-secret.yaml
+
+
+cat > my-mysql-Deployment.yaml <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-mysql
+  labels:
+    app: my-mysql
+spec:
+  selector:
+    matchLabels:
+      app: my-mysql
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: my-mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: my-mysql
+        args:
+          - "--ignore-db-dir=lost+found"
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: mysql-root-password
+              name: my-mysql
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: mysql-password
+              name: my-mysql
+        - name: MYSQL_USER
+          value: user_xxx
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: my-mysql
+EOF
+kubectl apply -f my-mysql-Deployment.yaml
+
+cat > mysql-service.yaml <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-mysql
+  labels:
+    app: my-mysql
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+  selector:
+    app: my-mysql
+EOF
+kubectl create -f mysql-service.yaml

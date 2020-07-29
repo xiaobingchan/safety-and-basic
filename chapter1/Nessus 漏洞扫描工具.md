@@ -8,6 +8,7 @@
 
 ```shell
 rpm -ivh Nessus-7.1.5-es7.x86_64.rpm
+systemctl start nessusd
 ```
 安装完成后，访问：https://118.89.23.220:8834
 

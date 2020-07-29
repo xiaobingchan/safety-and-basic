@@ -1,0 +1,31 @@
+cat > Dockerfile <<EOF
+FROM tomcat:latest
+RUN ["rm", "-fr", "/usr/local/tomcat/webapps/"]
+RUN ["mv", "/usr/local/tomcat/webapps.dist/" ,"/usr/local/tomcat/webapps/"]
+CMD ["catalina.sh", "run"]
+EXPOSE 8080
+EOF
+docker build -t="luyanjie/tomcat" .
+docker run --name tomcat-test -p 8880:8080 -d tomcat:latest
+# curl http://127.0.0.1:8880
+
+
+# 打包war包：https://juejin.im/post/5cd15ed2e51d453b5854b881
+# http://192.168.225.158:38001/mywar/test/test1
+cat > docker-compose.yml <<EOF
+version: "2"
+services:
+  tomcatwar3:
+    hostname: tomcatwar3
+    image: tomcat:latest
+    volumes:
+      - "./target/:/usr/local/tomcat/webapps/"
+    ports:
+      - "38002:8080"
+    entrypoint:
+      - "catalina.sh"
+      - "run"
+EOF
+
+docker-compose up -d
+

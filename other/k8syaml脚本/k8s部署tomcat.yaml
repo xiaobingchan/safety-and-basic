@@ -1,0 +1,46 @@
+cat > myweb-rc.yaml <<EOF
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myweb-controller
+spec:
+  replicas: 2
+  selector:
+    name: myweb
+  template:
+    metadata:
+      labels:
+        name: myweb
+    spec:
+      containers:
+      - name: myweb
+        image: tomcat:8.5-jre8
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+EOF
+
+cat > myweb-service.yaml <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: myweb-service-nodeport
+spec:
+   ports:
+     - port: 31111
+       targetPort: 8080
+       protocol: TCP
+   type: NodePort
+   selector:
+    name: myweb
+EOF
+
+kubectl create -f myweb-rc.yaml
+kubectl create -f myweb-service.yaml
+
+kubectl get pod
+kubectl get svc
+kubectl describe svc myweb-service-nodeport
+
+
+curl http://127.0.0.1:30747
