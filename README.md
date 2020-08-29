@@ -31,6 +31,6 @@
 - [too1s 攻击资讯相关](https://www.t00ls.net/)
 - [乌云网 安全相关](https://wooyun.js.org/)
 - [漏洞时代](http://0day5.com/)
-- 关注公众号  LemonSec
+- 关注公众号  LemonSec、阿里云先知
 ### 2.7 Web 常见漏洞扫描工具：
 - [常见漏洞扫描工具](https://github.com/xiaobingchan/safety-and-basic/blob/master/TOOLS.md)
